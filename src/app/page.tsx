@@ -75,51 +75,73 @@ export default function Home() {
       </nav>
 
       <div className="mt-16 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-pcg-orange mb-2">CGIDSEC Form</h1>
-        <h2 className="text-xl text-gray-600 mb-8">Reservist ID Application</h2>
+        <h1 className="text-4xl font-bold text-pcg-orange mb-2">CGIDSEC Form</h1>
+        <h2 className="text-xl font-bold text-pcg-blue mb-8">Reservist ID Application</h2>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="flex space-x-6">
             <div className="flex items-center space-x-2">
               <input type="radio" id="officer" name="type" />
-              <label htmlFor="officer">Reservist Officer</label>
+              <label htmlFor="officer" className="text-black">Reservist Officer</label>
             </div>
             <div className="flex items-center space-x-2">
               <input type="radio" id="enlisted" name="type" />
-              <label htmlFor="enlisted">Enlisted Reservist</label>
+              <label htmlFor="enlisted" className="text-black">Enlisted Reservist</label>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <Input name="firstName" placeholder="First Name" />
-            <Input name="lastName" placeholder="Last Name" />
-            <Input name="middleName" placeholder="Middle Name" />
+          <div className="grid grid-cols-3 gap-4 text-black">
+            <Input name="firstName" placeholder="First Name"/>
+            <Input name="lastName" placeholder="Last Name"/>
+            <Input name="middleName" placeholder="Middle Name"/>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <Input name="unitAssignment" placeholder="Unit Assignment" defaultValue="855TH EESBn" />
-            <Input name="rank" placeholder="Rank" />
+            <Input name="unitAssignment" placeholder="Unit Assignment"/>
+            <Input name="rank" placeholder="Rank"/>
             <Input name="serialNumber" placeholder="Serial Number" />
-            <Input name="branchOfService" placeholder="Branch of Service" defaultValue="PA" />
+            <Input name="branchOfService" placeholder="Branch of Service" />
           </div>
 
           <Input name="homeAddress" placeholder="Home Address (max 48 length)" />
-          <Input name="contactNumber" placeholder="Contact Number" />
+          <Input name="contactNumber" placeholder="Contact Number"/>
 
           <div className="grid grid-cols-3 gap-4">
-            <Input name="dateOfBirth" type="date" placeholder="Date of Birth" />
-            <select name="gender" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-            <select name="maritalStatus" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
-              <option value="">Select Marital Status</option>
-              <option value="single">Single</option>
-              <option value="married">Married</option>
-              <option value="divorced">Divorced</option>
-              <option value="widowed">Widowed</option>
-            </select>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
+              <Input 
+                name="dateOfBirth" 
+                type="date" 
+                placeholder="Date of Birth" 
+                className="text-gray-400"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Gender</label>
+              <select 
+                name="gender" 
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background text-gray-400"
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Marital Status</label>
+              <select 
+                name="maritalStatus" 
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background text-gray-400"
+              >
+                <option value="">Select Marital Status</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorced">Divorced</option>
+                <option value="widowed">Widowed</option>
+              </select>
+            </div>
           </div>
 
           <div className="grid grid-cols-4 gap-4">
@@ -129,7 +151,7 @@ export default function Home() {
             <Input name="hairColor" placeholder="Color of Hair" />
           </div>
 
-          <select name="bloodType" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+          <select name="bloodType" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background text-gray-400">
             <option value="">Select Blood Type</option>
             <option value="A+">A+</option>
             <option value="A-">A-</option>
@@ -146,7 +168,7 @@ export default function Home() {
             <Input name="philhealthNo" placeholder="PHILHEALTH NO. (format: ##-#########-#)" />
           </div>
 
-          <h3 className="text-lg font-semibold">Person to be notified in case of emergency</h3>
+          <h3 className="text-lg font-semibold text-pcg-blue">Person to be notified in case of emergency</h3>
           <div className="grid grid-cols-3 gap-4">
             <Input name="emergencyFirstName" placeholder="First Name" />
             <Input name="emergencyLastName" placeholder="Last Name" />
@@ -160,7 +182,7 @@ export default function Home() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-sm font-medium">2x2 Picture (No headgear, White background)</label>
+              <label className="block text-sm font-medium text-pcg-blue">2x2 Picture (No headgear, White background)</label>
               <input
                 type="file"
                 accept="image/*"
@@ -182,16 +204,12 @@ export default function Home() {
 
           <div className="grid grid-cols-2 gap-4">
             <Input name="philsysNo" placeholder="PHILSYS NO." />
-            <Input name="dateEte" type="date" placeholder="DATE ETE" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <Input name="religion" placeholder="RELIGION" />
             <Input name="identifyingMark" placeholder="IDENTIFYING MARK" />
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium">Signature</label>
+            <label className="block text-sm font-bold text-gray-400">Signature</label>
             <canvas
               ref={signatureRef}
               className="border border-gray-300 rounded-md w-full h-32 bg-white"
