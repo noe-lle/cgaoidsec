@@ -1,7 +1,70 @@
+"use client";
+
+import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { generatePdf } from "@/lib/generatePdf";
+import { useRef, useState } from "react";
+import SignaturePad from "signature_pad";
 
 export default function Home() {
+  const signatureRef = useRef<HTMLCanvasElement>(null);
+  const [picture, setPicture] = useState<string | null>(null);
+  const [signature, setSignature] = useState<string | null>(null);
+  let signaturePad: SignaturePad | null = null;
+
+  // Initialize signature pad
+  React.useEffect(() => {
+    if (signatureRef.current) {
+      signaturePad = new SignaturePad(signatureRef.current);
+    }
+  }, []);
+
+  const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPicture(e.target?.result as string);
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const clearSignature = () => {
+    if (signaturePad) {
+      signaturePad.clear();
+      setSignature(null);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    
+    const formData = new FormData(event.currentTarget);
+    if (picture) formData.append('picture', picture);
+    if (signaturePad) {
+      const signatureData = signaturePad.toDataURL();
+      formData.append('signature', signatureData);
+    }
+    
+    const data = Object.fromEntries(formData.entries());
+    
+    try {
+      const pdfBytes = await generatePdf(data);
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'CGIDSEC-Form.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
   return (
     <main className="min-h-screen p-8">
       <nav className="fixed top-0 left-0 right-0 bg-pcg-blue text-white p-4">
@@ -15,7 +78,7 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-pcg-orange mb-2">CGIDSEC Form</h1>
         <h2 className="text-xl text-gray-600 mb-8">Reservist ID Application</h2>
 
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="flex space-x-6">
             <div className="flex items-center space-x-2">
               <input type="radio" id="officer" name="type" />
@@ -28,29 +91,29 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <Input placeholder="First Name" />
-            <Input placeholder="Last Name" />
-            <Input placeholder="Middle Name" />
+            <Input name="firstName" placeholder="First Name" />
+            <Input name="lastName" placeholder="Last Name" />
+            <Input name="middleName" placeholder="Middle Name" />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <Input placeholder="Unit Assignment" defaultValue="855TH EESBn" />
-            <Input placeholder="Rank" />
-            <Input placeholder="Serial Number" />
-            <Input placeholder="Branch of Service" defaultValue="PA" />
+            <Input name="unitAssignment" placeholder="Unit Assignment" defaultValue="855TH EESBn" />
+            <Input name="rank" placeholder="Rank" />
+            <Input name="serialNumber" placeholder="Serial Number" />
+            <Input name="branchOfService" placeholder="Branch of Service" defaultValue="PA" />
           </div>
 
-          <Input placeholder="Home Address (max 48 length)" />
-          <Input placeholder="Contact Number" />
+          <Input name="homeAddress" placeholder="Home Address (max 48 length)" />
+          <Input name="contactNumber" placeholder="Contact Number" />
 
           <div className="grid grid-cols-3 gap-4">
-            <Input type="date" placeholder="Date of Birth" />
-            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+            <Input name="dateOfBirth" type="date" placeholder="Date of Birth" />
+            <select name="gender" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
-            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+            <select name="maritalStatus" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
               <option value="">Select Marital Status</option>
               <option value="single">Single</option>
               <option value="married">Married</option>
@@ -60,13 +123,13 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-4 gap-4">
-            <Input placeholder="Weight (kg)" />
-            <Input placeholder="Height (cm)" />
-            <Input placeholder="Color of Eyes" />
-            <Input placeholder="Color of Hair" />
+            <Input name="weight" placeholder="Weight (kg)" />
+            <Input name="height" placeholder="Height (cm)" />
+            <Input name="eyeColor" placeholder="Color of Eyes" />
+            <Input name="hairColor" placeholder="Color of Hair" />
           </div>
 
-          <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+          <select name="bloodType" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
             <option value="">Select Blood Type</option>
             <option value="A+">A+</option>
             <option value="A-">A-</option>
@@ -79,20 +142,67 @@ export default function Home() {
           </select>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input placeholder="TIN (format: ###-###-####)" />
-            <Input placeholder="PHILHEALTH NO. (format: ##-#########-#)" />
+            <Input name="tin" placeholder="TIN (format: ###-###-####)" />
+            <Input name="philhealthNo" placeholder="PHILHEALTH NO. (format: ##-#########-#)" />
           </div>
 
           <h3 className="text-lg font-semibold">Person to be notified in case of emergency</h3>
           <div className="grid grid-cols-3 gap-4">
-            <Input placeholder="First Name" />
-            <Input placeholder="Last Name" />
-            <Input placeholder="Relationship" />
+            <Input name="emergencyFirstName" placeholder="First Name" />
+            <Input name="emergencyLastName" placeholder="Last Name" />
+            <Input name="emergencyRelationship" placeholder="Relationship" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input placeholder="Address" />
-            <Input placeholder="Contact Number" />
+            <Input name="emergencyAddress" placeholder="Address" />
+            <Input name="emergencyContact" placeholder="Contact Number" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">2x2 Picture (No headgear, White background)</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePictureChange}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-pcg-blue file:text-white
+                  hover:file:bg-pcg-blue/80"
+              />
+              {picture && (
+                <div className="mt-2">
+                  <img src={picture} alt="Preview" className="w-32 h-32 object-cover" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input name="philsysNo" placeholder="PHILSYS NO." />
+            <Input name="dateEte" type="date" placeholder="DATE ETE" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input name="religion" placeholder="RELIGION" />
+            <Input name="identifyingMark" placeholder="IDENTIFYING MARK" />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">Signature</label>
+            <canvas
+              ref={signatureRef}
+              className="border border-gray-300 rounded-md w-full h-32 bg-white"
+            />
+            <button
+              type="button"
+              onClick={clearSignature}
+              className="text-sm text-red-500 hover:text-red-600"
+            >
+              Clear Signature
+            </button>
           </div>
 
           <div className="flex space-x-4">
